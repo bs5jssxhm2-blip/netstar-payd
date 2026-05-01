@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PAYD ROI">
+<title>PAYD ROI Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060c14;--surface:#0c1622;--border:#162030;--border2:#1e2e40;--text:#c8d8e8;--muted:#445566;--dim:#2a3a4a;--blue:#3d9be8;--green:#00e5a0;--orange:#f5a623;--mono:'JetBrains Mono',monospace;--body:'Sora',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-text{font-family:var(--mono);font-size:15px;font-weight:700;color:#e8f0f8}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.badge{background:#0d1e30;border:1px solid #1a3050;border-radius:4px;padding:2px 8px;font-size:9px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+.main{padding:16px;max-width:900px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-bottom:12px}
+.card-title{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.slider-row{margin-bottom:14px}
+.slider-label{display:flex;justify-content:space-between;margin-bottom:6px}
+.slider-name{font-size:12px;color:var(--text)}
+.slider-val{font-size:12px;font-family:var(--mono);color:var(--blue);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--blue);height:4px}
+.result-box{border-radius:10px;padding:16px;text-align:center}
+.result-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:6px}
+.result-value{font-size:28px;font-weight:700;font-family:var(--mono)}
+.result-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.roi-hero{background:var(--surface);border:2px solid var(--green);border-radius:16px;padding:24px;text-align:center;margin-bottom:12px}
+.roi-hero-label{font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px}
+.roi-hero-value{font-size:56px;font-weight:700;font-family:var(--mono);color:var(--green);line-height:1}
+.roi-hero-sub{font-size:13px;color:var(--muted);margin-top:8px}
+.brow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow-label{font-size:13px;color:var(--text)}
+.brow-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.brow-value{font-size:15px;font-weight:700;font-family:var(--mono)}
+.btn{background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.3);border-radius:8px;color:var(--green);padding:10px 20px;font-size:12px;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%;margin-top:4px}
+.note{font-size:11px;color:var(--dim);line-height:1.7;margin-top:8px}
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
+.tab{padding:11px 18px;font-size:11px;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.page{display:none}.page.active{display:block}
+.rg{background:#080e18;border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.back{display:block;background:rgba(61,155,232,0.08);border:1px solid rgba(61,155,232,0.25);border-radius:8px;color:var(--blue);padding:10px 16px;font-size:11px;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;text-align:center;text-decoration:none;margin-bottom:12px}
+@media(max-width:600px){.grid3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <div class="logo-text">PAYD ROI Calculator</div>
+    <div class="logo-sub">Netstar Australia - Insurer Value Model</div>
+  </div>
+  <span class="badge">v1.3</span>
+</header>
+<div class="tab-bar">
+  <button class="tab active" id="tab-calc">Calculator</button>
+  <button class="tab" id="tab-breakdown">Breakdown</button>
+  <button class="tab" id="tab-assumptions">Assumptions</button>
+</div>
+<div class="main">
+  <div id="page-calc" class="page active">
+    <a href="https://tight-dream-d2e5.shaunbr.workers.dev" class="back">Back to PAYD Risk Scorer</a>
+    <div class="card">
+      <div class="card-title">Your Book of Business</div>
+      <div class="rg">
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Gross Written Premium</span><span class="slider-val" id="val-gwp">$50M</span></div><input type="range" id="sl-gwp" min="5" max="500" step="5" value="50"></div>
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Number of Vehicles</span><span class="slider-val" id="val-veh">10,000</span></div><input type="range" id="sl-veh" min="1000" max="200000" step="1000" value="10000"></div>
+        <div class="slider-row" style="margin-bottom:0"><div class="slider-label"><span class="slider-name">Current Loss Ratio</span><span class="slider-val" id="val-lr">70%</span></div><input type="range" id="sl-lr" min="50" max="95" step="1" value="70"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Telematics Assumptions</div>
+      <div class="rg">
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Enrollment Rate</span><span class="slider-val" id="val-enroll">60%</span></div><input type="range" id="sl-enroll" min="10" max="100" step="5" value="60"></div>
+        <div class="slider-row"><div class="slider-label"><span class="slider-name">Claims Frequency Reduction</span><span class="slider-val" id="val-freq">20%</span></div><input type="range" id="sl-freq" min="5" max="35" step="1" value="20"></div>
+        <div class="slider-row" style="margin-bottom:0"><div class="slider-label"><span class="slider-name">Adverse Selection Improvement</span><span class="slider-val" id="val-adv">4%</span></div><input type="range" id="sl-adv" min="1" max="10" step="0.5" value="4"></div>
+      </div>
+    </div>
+    <div class="roi-hero">
+      <div class="roi-hero-label">Net Annual Benefit to Insurer</div>
+      <div class="roi-hero-value" id="net-benefit">-</div>
+      <div class="roi-hero-sub">After Netstar platform cost</div>
+    </div>
+    <div class="grid3" style="margin-bottom:12px">
+      <div class="result-box" style="border:1px solid #00e5a033"><div class="result-label">Claims Savings</div><div class="result-value" id="res-claims" style="color:#00e5a0">-</div><div class="result-sub">Annual reduction</div></div>
+      <div class="result-box" style="border:1px solid #f5a62333"><div class="result-label">Selection Gain</div><div class="result-value" id="res-adv" style="color:#f5a623">-</div><div class="result-sub">Loss ratio improvement</div></div>
+      <div class="result-box" style="border:1px solid #3d9be833"><div class="result-label">ROI Multiple</div><div class="result-value" id="res-roi" style="color:#3d9be8">-</div><div class="result-sub">Return on platform cost</div></div>
+    </div>
+    <div class="card">
+      <div class="brow"><div><div class="brow-label">Netstar Annual Platform Cost</div><div class="brow-sub">At recommended tier</div></div><div class="brow-value" id="res-cost" style="color:#e8612a">-</div></div>
+      <div class="brow"><div><div class="brow-label">Payback Period</div><div class="brow-sub">Months to recover setup fee</div></div><div class="brow-value" id="res-payback" style="color:#3d9be8">-</div></div>
+      <div class="brow"><div><div class="brow-label">5-Year Net Value</div><div class="brow-sub">Cumulative benefit less all costs</div></div><div class="brow-value" id="res-5yr" style="color:#00e5a0">-</div></div>
+    </div>
+    <button class="btn" id="email-btn">Send Results by Email</button>
+  </div>
+  <div id="page-breakdown" class="page">
+    <div class="card" style="margin-top:4px">
+      <div class="card-title">Full Calculation Breakdown</div>
+      <div id="bd-content"><div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Move a slider on the Calculator tab first.</div></div>
+    </div>
+  </div>
+  <div id="page-assumptions" class="page">
+    <div class="card" style="margin-top:4px">
+      <div class="card-title">Model Assumptions and Sources</div>
+      <div class="brow"><div><div class="brow-label">Claims Frequency Reduction</div><div class="brow-sub">Swiss Re, Munich Re UBI studies 2022-2023</div></div><div class="brow-value" style="color:#3d9be8">15-25%</div></div>
+      <div class="brow"><div><div class="brow-label">Adverse Selection Improvement</div><div class="brow-sub">ABI UK Telematics Report 2023</div></div><div class="brow-value" style="color:#3d9be8">3-6 pts</div></div>
+      <div class="brow"><div><div class="brow-label">Australian Claims Frequency</div><div class="brow-sub">APRA Motor Statistics 2023</div></div><div class="brow-value" style="color:#3d9be8">13/100 veh</div></div>
+      <div class="brow"><div><div class="brow-label">Average Claim Cost</div><div class="brow-sub">ICA Australian Insurance Statistics 2023</div></div><div class="brow-value" style="color:#3d9be8">~$4,800</div></div>
+      <div class="brow"><div><div class="brow-label">Enrollment Rate</div><div class="brow-sub">LexisNexis UBI Research 2023</div></div><div class="brow-value" style="color:#3d9be8">55-70%</div></div>
+      <p class="note">Conservative benchmarks only. Netstar recommends a 90-day paid pilot to establish Australian-specific validation data.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Netstar Pricing</div>
+      <div class="brow"><div><div class="brow-label">Pilot - up to 500 vehicles</div></div><div class="brow-value" style="color:#3d9be8">$2,000/mo</div></div>
+      <div class="brow"><div><div class="brow-label">Growth - up to 2,000 vehicles</div></div><div class="brow-value" style="color:#3d9be8">$3,500/mo</div></div>
+      <div class="brow"><div><div class="brow-label">Enterprise - up to 10,000 vehicles</div></div><div class="brow-value" style="color:#3d9be8">$7,500/mo + $2.50/veh</div></div>
+      <div class="brow"><div><div class="brow-label">Over 10,000 vehicles</div></div><div class="brow-value" style="color:#3d9be8">Custom pricing</div></div>
+    </div>
+  </div>
+</div>
+<script>
+var D={};
+function fmt(n){if(n>=1000000)return '$'+(n/1000000).toFixed(1)+'M';if(n>=1000)return '$'+(n/1000).toFixed(0)+'K';return '$'+Math.round(n).toLocaleString();}
+function monthly(v){if(v<=500)return 2000;if(v<=2000)return 3500;if(v<=10000)return 7500+(v-2000)*2.5;return 12000+(v-2000)*2;}
+function setup(v){if(v<=500)return 15000;if(v<=2000)return 25000;return 50000;}
+function calc(){
+  var gwp=parseFloat(document.getElementById('sl-gwp').value)*1e6;
+  var veh=parseFloat(document.getElementById('sl-veh').value);
+  var lr=parseFloat(document.getElementById('sl-lr').value)/100;
+  var en=parseFloat(document.getElementById('sl-enroll').value)/100;
+  var fr=parseFloat(document.getElementById('sl-freq').value)/100;
+  var ad=parseFloat(document.getElementById('sl-adv').value)/100;
+  var tc=gwp*lr;
+  var cpv=tc/veh;
+  var ev=veh*en;
+  var coe=ev*cpv;
+  var cs=coe*fr;
+  var as=gwp*ad;
+  var mp=monthly(veh);
+  var ap=mp*12;
+  var sf=setup(veh);
+  var tb=cs+as;
+  var nb=tb-ap;
+  var roi=ap>0?tb/ap:0;
+  var pb=nb>0?sf/(nb/12):999;
+  var fy=nb*5-sf;
+  D={gwp:gwp,veh:veh,lr:lr,en:en,fr:fr,ad:ad,tc:tc,cpv:cpv,ev:ev,coe:coe,cs:cs,as:as,ap:ap,sf:sf,tb:tb,nb:nb,roi:roi,pb:pb,fy:fy};
+  document.getElementById('net-benefit').textContent=fmt(nb);
+  document.getElementById('net-benefit').style.color=nb>0?'#00e5a0':'#e02020';
+  document.getElementById('res-claims').textContent=fmt(cs);
+  document.getElementById('res-adv').textContent=fmt(as);
+  document.getElementById('res-roi').textContent=roi.toFixed(1)+'x';
+  document.getElementById('res-cost').textContent='-'+fmt(ap);
+  document.getElementById('res-payback').textContent=pb<999?Math.ceil(pb)+' months':'N/A';
+  document.getElementById('res-5yr').textContent=fmt(fy);
+  bd();
+}
+function br(l,v,c){return '<div class="brow"><div class="brow-label">'+l+'</div><div class="brow-value" style="color:'+c+'">'+v+'</div></div>';}
+function bd(){
+  if(!D.gwp)return;
+  document.getElementById('bd-content').innerHTML=
+    br('Gross Written Premium',fmt(D.gwp),'#3d9be8')+
+    br('Total Claims ('+Math.round(D.lr*100)+'% LR)',fmt(D.tc),'#3d9be8')+
+    br('Avg Claim Cost per Vehicle',fmt(D.cpv),'#3d9be8')+
+    br('Enrolled Vehicles ('+Math.round(D.en*100)+'%)',Math.round(D.ev).toLocaleString(),'#3d9be8')+
+    br('Claims on Enrolled Fleet',fmt(D.coe),'#3d9be8')+
+    br('Claims Reduction ('+Math.round(D.fr*100)+'%)','+'+fmt(D.cs),'#00e5a0')+
+    br('Adverse Selection ('+Math.round(D.ad*100)+'pt)','+'+fmt(D.as),'#00e5a0')+
+    br('Netstar Annual Cost','-'+fmt(D.ap),'#e8612a')+
+    br('Setup Fee (one-off)','-'+fmt(D.sf),'#e8612a')+
+    '<div class="brow"><div class="brow-label" style="font-weight:700;color:#e8f0f8">Net Annual Benefit</div><div class="brow-value" style="color:'+(D.nb>0?'#00e5a0':'#e02020')+';font-size:18px">'+fmt(D.nb)+'</div></div>';
+}
+function showTab(t){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='breakdown')bd();
+}
+document.getElementById('tab-calc').addEventListener('click',function(){showTab('calc');});
+document.getElementById('tab-breakdown').addEventListener('click',function(){showTab('breakdown');});
+document.getElementById('tab-assumptions').addEventListener('click',function(){showTab('assumptions');});
+var ids=['sl-gwp','sl-veh','sl-lr','sl-enroll','sl-freq','sl-adv'];
+ids.forEach(function(id){
+  document.getElementById(id).addEventListener('input',function(){
+    var v=this.value;
+    if(id==='sl-gwp')document.getElementById('val-gwp').textContent='$'+v+'M';
+    else if(id==='sl-veh')document.getElementById('val-veh').textContent=Number(v).toLocaleString();
+    else if(id==='sl-lr')document.getElementById('val-lr').textContent=v+'%';
+    else if(id==='sl-enroll')document.getElementById('val-enroll').textContent=v+'%';
+    else if(id==='sl-freq')document.getElementById('val-freq').textContent=v+'%';
+    else if(id==='sl-adv')document.getElementById('val-adv').textContent=v+'%';
+    calc();
+  });
+});
+document.getElementById('email-btn').addEventListener('click',function(){
+  if(!D.gwp)return;
+  var b='PAYD ROI Model - Netstar Australia\n\nBook: $'+(D.gwp/1e6).toFixed(0)+'M GWP, '+D.veh.toLocaleString()+' vehicles\nLoss Ratio: '+Math.round(D.lr*100)+'%\nEnrollment: '+Math.round(D.en*100)+'%\n\nBENEFITS\nClaims Reduction: '+fmt(D.cs)+'\nAdverse Selection: '+fmt(D.as)+'\nTotal Gross Benefit: '+fmt(D.tb)+'\n\nCOST\nAnnual Platform Fee: '+fmt(D.ap)+'\nSetup Fee: '+fmt(D.sf)+'\n\nRESULT\nNet Annual Benefit: '+fmt(D.nb)+'\nROI: '+D.roi.toFixed(1)+'x\nPayback: '+Math.ceil(D.pb)+' months\n5-Year Value: '+fmt(D.fy)+'\n\nNetstar Australia - shaunbr@netstaraus.com.au';
+  window.location.href='mailto:?subject=PAYD ROI - Netstar Australia&body='+encodeURIComponent(b);
+});
+calc();
+</script>
+</body>
+</html>
