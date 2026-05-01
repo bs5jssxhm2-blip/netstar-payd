@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="My Drive Score">
+<title>My Drive Score</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060c14;--surface:#0c1622;--border:#162030;--border2:#1e2e40;--text:#e8f4ff;--muted:#7899bb;--dim:#4a6a8a;--blue:#3d9be8;--green:#00e5a0;--orange:#f5a623;--red:#e02020;--mono:'JetBrains Mono',monospace;--body:'Sora',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-text{font-family:var(--mono);font-size:15px;font-weight:700;color:#e8f0f8}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.badge{background:#0d1e30;border:1px solid #1a3050;border-radius:4px;padding:2px 8px;font-size:9px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+.main{padding:16px;max-width:600px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-bottom:12px}
+.card-title{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:12px}
+.hero{background:var(--surface);border-radius:16px;padding:24px;text-align:center;margin-bottom:12px}
+.hero-name{font-size:22px;font-weight:700;color:#e8f0f8;margin-bottom:4px}
+.hero-vehicle{font-size:13px;color:var(--muted);margin-bottom:20px}
+.gauge-wrap{position:relative;width:220px;height:140px;margin:0 auto 16px}
+.gauge-score{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center}
+.gauge-num{font-size:48px;font-family:var(--mono);font-weight:700;line-height:1}
+.gauge-band{font-size:11px;opacity:0.8;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.savings-hero{border-radius:12px;padding:20px;text-align:center;margin-bottom:12px}
+.savings-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px}
+.savings-value{font-size:42px;font-weight:700;font-family:var(--mono);color:var(--green);line-height:1}
+.savings-sub{font-size:12px;color:var(--muted);margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-box{border-radius:10px;padding:14px;text-align:center}
+.stat-label{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:700;font-family:var(--mono)}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:4px}
+.tip-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.tip-row:last-child{border-bottom:none}
+.tip-icon{font-size:22px;min-width:32px;text-align:center}
+.tip-label{font-size:13px;color:var(--text);font-weight:600;margin-bottom:3px}
+.tip-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.tip-impact{font-size:10px;font-family:var(--mono);margin-top:4px}
+.fbar{margin-bottom:14px}
+.fbar-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.fbar-label{font-size:12px;color:var(--text)}
+.fbar-value{font-size:12px;font-family:var(--mono)}
+.fbar-track{background:var(--border2);border-radius:4px;height:8px;overflow:hidden}
+.fbar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.fbar-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.sub-box{border-radius:12px;padding:20px;margin-bottom:12px}
+.sub-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px}
+.sub-amount{font-size:36px;font-weight:700;font-family:var(--mono);line-height:1}
+.sub-period{font-size:12px;color:var(--muted);margin-top:4px}
+.sub-compare{font-size:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border2);color:var(--muted);line-height:1.7}
+.loading{text-align:center;padding:80px 20px}
+.loading-icon{font-size:40px;margin-bottom:16px;display:block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error{text-align:center;padding:60px 20px}
+.error-icon{font-size:48px;margin-bottom:16px}
+.error-title{font-size:18px;color:var(--text);margin-bottom:8px}
+.error-sub{font-size:13px;color:var(--muted);line-height:1.7}
+.band-bar{display:flex;border-radius:8px;overflow:hidden;margin-bottom:16px;height:8px}
+.band-seg{flex:1;transition:opacity 0.3s}
+.period-text{font-size:10px;color:var(--dim);text-align:center;margin-top:8px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <div class="logo-text">My Drive Score</div>
+    <div class="logo-sub">Powered by Netstar</div>
+  </div>
+  <span class="badge" id="score-badge">loading</span>
+</header>
+<div class="main" id="main-content">
+  <div class="loading">
+    <span class="loading-icon">&#9685;</span>
+    <div style="font-size:14px;color:var(--muted)">Loading your score...</div>
+  </div>
+</div>
+<script>
+var W='https://tight-dream-d2e5.shaunbr.workers.dev';
+var RISK_BANDS=[
+  {label:'Excellent',min:0,max:20,color:'#00e5a0',bg:'#001a12'},
+  {label:'Good',min:20,max:40,color:'#7ed321',bg:'#0d1a00'},
+  {label:'Moderate',min:40,max:60,color:'#f5a623',bg:'#1a1000'},
+  {label:'High',min:60,max:80,color:'#e8612a',bg:'#1a0800'},
+  {label:'Critical',min:80,max:100,color:'#e02020',bg:'#1a0000'},
+];
+
+function getBand(s){return RISK_BANDS.find(function(b){return s>=b.min&&s<b.max;})||RISK_BANDS[4];}
+function safe(v){var n=parseFloat(v);return isNaN(n)||n<0?0:n;}
+function fmt(n){if(n>=1000)return '$'+(n/1000).toFixed(1)+'K';return '$'+Math.round(n);}
+
+function getToken(){
+  var params=new URLSearchParams(window.location.search);
+  return params.get('token')||null;
+}
+
+function gaugeHTML(score,color){
+  var angle=-135+(score/100)*270;
+  function R(a){return a*Math.PI/180;}
+  function pt(r,a){return{x:110+r*Math.cos(R(a)),y:120+r*Math.sin(R(a))};}
+  function arc(a1,a2,lg){var s=pt(90,a1),e=pt(90,a2);return'M '+s.x+' '+s.y+' A 90 90 0 '+(lg?1:0)+' 1 '+e.x+' '+e.y;}
+  var n=pt(70,angle);
+  var segs=RISK_BANDS.map(function(b){return'<path d="'+arc(-135+(b.min/100)*270,-135+(b.max/100)*270,false)+'" fill="none" stroke="'+b.color+'" stroke-width="16" stroke-linecap="butt" opacity="0.25"/>';}).join('');
+  return '<div class="gauge-wrap"><svg viewBox="0 0 220 140" width="220" height="140"><path d="M 20 120 A 90 90 0 1 1 200 120" fill="none" stroke="#1e2a3a" stroke-width="16" stroke-linecap="round"/>'+segs+'<path d="'+arc(-135,angle,score>50)+'" fill="none" stroke="'+color+'" stroke-width="16" stroke-linecap="round"/><line x1="110" y1="120" x2="'+n.x+'" y2="'+n.y+'" stroke="'+color+'" stroke-width="3" stroke-linecap="round"/><circle cx="110" cy="120" r="5" fill="'+color+'"/></svg><div class="gauge-score"><div class="gauge-num" style="color:'+color+'">'+score.toFixed(0)+'</div></div></div>';
+}
+
+function calcSavings(score, basePremium){
+  basePremium=basePremium||1800;
+  var loading=0;
+  if(score<20)loading=-0.30;
+  else if(score<40)loading=-0.15;
+  else if(score<60)loading=0;
+  else if(score<80)loading=0.20;
+  else loading=0.35;
+  var paydPremium=basePremium*(1+loading);
+  var saving=basePremium-paydPremium;
+  return{basePremium:basePremium,paydPremium:paydPremium,saving:saving,loading:loading,monthly:paydPremium/12};
+}
+
+function getTips(features, score){
+  var tips=[];
+  var f=features||{};
+  if(safe(f.harsh_breaking)>0)tips.push({icon:'&#128698;',label:'Reduce harsh braking',sub:'You had '+safe(f.harsh_breaking).toFixed(0)+' harsh braking events. Increase following distance and anticipate stops earlier.',impact:'High impact on score',color:'#e8612a'});
+  if(safe(f.over_speed)>0)tips.push({icon:'&#128246;',label:'Watch your speed',sub:'You had '+safe(f.over_speed).toFixed(0)+' speeding events. Staying within limits has the biggest impact on your score.',impact:'Highest impact on score',color:'#e02020'});
+  if(safe(f.harsh_acceleration)>0)tips.push({icon:'&#9889;',label:'Smoother acceleration',sub:'You had '+safe(f.harsh_acceleration).toFixed(0)+' harsh acceleration events. Gradual acceleration saves fuel and improves your score.',impact:'Medium impact on score',color:'#f5a623'});
+  if(safe(f.harsh_cornering)>0)tips.push({icon:'&#8635;',label:'Gentler cornering',sub:'You had '+safe(f.harsh_cornering).toFixed(0)+' harsh cornering events. Slow down before corners rather than during.',impact:'Medium impact on score',color:'#f5a623'});
+  if(safe(f.night_drive)>0)tips.push({icon:'&#127762;',label:'Reduce night driving',sub:'Night driving carries higher risk. Where possible avoid driving between 10pm and 5am.',impact:'Low impact on score',color:'#7899bb'});
+  if(score>=60&&tips.length===0)tips.push({icon:'&#128269;',label:'Drive more to improve accuracy',sub:'Your score is based on a short trip sample. More driving data will give a more accurate score.',impact:'Score based on limited data',color:'#f5a623'});
+  if(tips.length===0)tips.push({icon:'&#127942;',label:'Keep it up',sub:'Your driving behaviour is excellent. Maintain these habits to keep your premium low.',impact:'Score: Excellent',color:'#00e5a0'});
+  return tips;
+}
+
+function render(data){
+var score=data.risk_score!=null?parseFloat(data.risk_score):0;
+
+  var band=getBand(score);
+  var sav=calcSavings(score);
+  var tips=getTips(data.features, score);
+  var f=data.features||{};
+
+  document.getElementById('score-badge').textContent=band.label;
+  document.getElementById('score-badge').style.color=band.color;
+  document.getElementById('score-badge').style.borderColor=band.color+'44';
+  document.getElementById('score-badge').style.background=band.bg;
+
+  var bandBarHTML=RISK_BANDS.map(function(b){
+    return'<div class="band-seg" style="background:'+b.color+';opacity:'+(b.label===band.label?'1':'0.2')+'"></div>';
+  }).join('');
+
+  var fbarsHTML=[
+    {key:'harsh_breaking',label:'Harsh Braking',max:15,color:'#e8612a'},
+    {key:'over_speed',label:'Speeding',max:20,color:'#e02020'},
+    {key:'harsh_acceleration',label:'Harsh Acceleration',max:15,color:'#f5a623'},
+    {key:'harsh_cornering',label:'Cornering',max:15,color:'#f5a623'},
+    {key:'night_drive',label:'Night Driving',max:10,color:'#7899bb'},
+    {key:'idling',label:'Idling',max:10,color:'#4a6a8a'},
+  ].map(function(item){
+    var val=safe(f[item.key])||0;
+    var pct=Math.min((val/item.max)*100,100);
+    var status=pct<30?'Good':pct<60?'Fair':'Needs work';
+    var statusColor=pct<30?'#00e5a0':pct<60?'#f5a623':'#e02020';
+    return'<div class="fbar"><div class="fbar-header"><span class="fbar-label">'+item.label+'</span><span class="fbar-value" style="color:'+statusColor+'">'+val.toFixed(0)+' events - '+status+'</span></div><div class="fbar-track"><div class="fbar-fill" style="width:'+pct+'%;background:'+item.color+'"></div></div></div>';
+  }).join('');
+
+  var tipsHTML=tips.map(function(t){
+    return'<div class="tip-row"><div class="tip-icon">'+t.icon+'</div><div><div class="tip-label">'+t.label+'</div><div class="tip-sub">'+t.sub+'</div><div class="tip-impact" style="color:'+t.color+'">'+t.impact+'</div></div></div>';
+  }).join('');
+
+  var savColor=sav.saving>=0?'#00e5a0':'#e02020';
+  var savSign=sav.saving>=0?'You save':'You pay extra';
+
+
+  document.getElementById('main-content').innerHTML=
+
+    '<div class="hero" style="border:1px solid '+band.color+'33">'
+    +'<div class="hero-name">'+(data.driver_name||'Driver')+'</div>'
+    +'<div class="hero-vehicle">'+(data.registration||'')+(data.make?' - '+data.make+' '+(data.model||''):'')+'</div>'
+    +gaugeHTML(score,band.color)
+    +'<div style="font-size:13px;color:'+band.color+';letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-top:8px">'+band.label+' Driver</div>'
+    +'<div class="band-bar" style="margin-top:16px">'+bandBarHTML+'</div>'
+    +'<div class="period-text">Score period: '+(data.period_from||'')+' to '+(data.period_to||'')+'</div>'
+    +'</div>'
+
+    +'<div class="savings-hero" style="background:'+band.bg+';border:1px solid '+band.color+'33">'
+    +'<div class="savings-label">'+savSign+' vs Standard Premium</div>'
+    +'<div class="savings-value" style="color:'+savColor+'">'+(sav.saving>=0?'+':'')+fmt(Math.abs(sav.saving))+'</div>'
+    +'<div class="savings-sub">Per year based on $1,800 standard premium</div>'
+    +'</div>'
+
+    +'<div class="grid2">'
+    +'<div class="stat-box" style="background:#001a1280;border:1px solid #00e5a033"><div class="stat-label">PAYD Monthly</div><div class="stat-value" style="color:#00e5a0">'+fmt(sav.monthly)+'</div><div class="stat-sub">Est. per month</div></div>'
+    +'<div class="stat-box" style="background:#0d1e3080;border:1px solid #3d9be833"><div class="stat-label">Standard Monthly</div><div class="stat-value" style="color:#3d9be8">'+fmt(sav.basePremium/12)+'</div><div class="stat-sub">Without telematics</div></div>'
+    +'</div>'
+
+    +'<div class="grid2">'
+    +'<div class="stat-box" style="background:var(--surface);border:1px solid var(--border2)"><div class="stat-label">Distance Driven</div><div class="stat-value" style="color:#3d9be8;font-size:18px">'+(data.total_distance_km||0).toLocaleString()+' km</div><div class="stat-sub">This period</div></div>'
+    +'<div class="stat-box" style="background:var(--surface);border:1px solid var(--border2)"><div class="stat-label">Drive Time</div><div class="stat-value" style="color:#3d9be8;font-size:18px">'+(data.running_time||'N/A')+'</div><div class="stat-sub">This period</div></div>'
+    +'</div>'
+
+    +'<div class="card"><div class="card-title">Your Behaviour Breakdown</div>'+fbarsHTML+'</div>'
+
+    +'<div class="card"><div class="card-title">How to Improve Your Score</div>'+tipsHTML+'</div>'
+
+    +'<div class="sub-box" style="background:'+band.bg+';border:1px solid '+band.color+'33">'
+    +'<div class="sub-label">Your Estimated Premium</div>'
+    +'<div class="sub-amount" style="color:'+band.color+'">'+fmt(sav.paydPremium)+'</div>'
+    +'<div class="sub-period">per year &nbsp;|&nbsp; '+fmt(sav.monthly)+' per month</div>'
+    +'<div class="sub-compare">'
+    +'Standard premium: '+fmt(sav.basePremium)+'/yr<br>'
+    +'Your PAYD premium: '+fmt(sav.paydPremium)+'/yr<br>'
+    +'<span style="color:'+savColor+';font-weight:700">'+(sav.saving>=0?'You save '+fmt(sav.saving)+' per year':'Additional loading: '+fmt(Math.abs(sav.saving))+' per year')+'</span>'
+    +'</div>'
+    +'</div>'
+
+    +'<div style="text-align:center;padding:20px;font-size:10px;color:var(--dim)">Score calculated from telematics data by Netstar Australia.<br>Premium estimate based on standard $1,800 base rate.</div>';
+}
+
+function showError(msg){
+  document.getElementById('main-content').innerHTML=
+    '<div class="error">'
+    +'<div class="error-icon">&#128683;</div>'
+    +'<div class="error-title">Unable to load score</div>'
+    +'<div class="error-sub">'+msg+'<br><br>Please contact your insurer for a new link.</div>'
+    +'</div>';
+}
+
+function load(){
+  var token=getToken();
+  if(!token){showError('No driver token found in this link.');return;}
+  fetch(W+'/driver-lookup?token='+encodeURIComponent(token))
+    .then(function(res){return res.json();})
+    .then(function(data){
+      if(data.error)throw new Error(data.error);
+      render(data);
+    })
+    .catch(function(e){showError(e.message);});
+}
+
+load();
+</script>
+</body>
+</html>
