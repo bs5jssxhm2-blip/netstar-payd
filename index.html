@@ -199,7 +199,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:1
   </div>
 </div>
 <script>
-var W='https://tight-dream-d2e5.shaunbr.workers.dev';
+var W='https://netstar-payd.shaunbr.workers.dev';  
 var RISK_BANDS=[{label:'Excellent',min:0,max:20,color:'#00e5a0',bg:'#001a12'},{label:'Good',min:20,max:40,color:'#7ed321',bg:'#0d1a00'},{label:'Moderate',min:40,max:60,color:'#f5a623',bg:'#1a1000'},{label:'High',min:60,max:80,color:'#e8612a',bg:'#1a0800'},{label:'Critical',min:80,max:100,color:'#e02020',bg:'#1a0000'}];
 var FEATURES={harsh_breaking:{label:'Harsh Braking',unit:'events',max:15,w:25},harsh_acceleration:{label:'Harsh Acceleration',unit:'events',max:15,w:20},harsh_cornering:{label:'Harsh Cornering',unit:'events',max:15,w:15},over_speed:{label:'Speeding',unit:'events',max:20,w:25},night_drive:{label:'Night Driving',unit:'events',max:10,w:10},idling:{label:'Idling',unit:'events',max:10,w:5}};
 var vehicles=[],selectedVehicle=null,lastRaw=null,rawVisible=false,pollingActive=false,pollingTimer=null;
