@@ -248,7 +248,7 @@ async function handle(request){
     return new Response(roi,{status:200,headers:Object.assign({"Content-Type":"text/html;charset=UTF-8"},csp)});
   }
   if(url.pathname==="/driver"){
-    var drv=await fetch(GITHUB_RAW+"/driver.html").then(function(r){return r.text();});
+   var drv=await fetch(GITHUB_RAW+"/driver.html?v="+Date.now()).then(function(r){return r.text();});
     return new Response(drv,{status:200,headers:Object.assign({"Content-Type":"text/html;charset=UTF-8"},csp)});
   }
   if(url.pathname==="/health")return json({status:"ok",version:"5.8"});
