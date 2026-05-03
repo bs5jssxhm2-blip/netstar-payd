@@ -5,7 +5,7 @@ const COMPANY = "Netstar Demo";
 const LOCATION = "Netstar Demo";
 const DATE_FROM = "07-04-2026 00:00:01";
 const DATE_TO = "13-04-2026 23:59:59";
-const GITHUB_RAW = "https://raw.githubusercontent.com/bs5jssxhm2-blip/Netstar-proxy/main";
+const GITHUB_RAW = "https://raw.githubusercontent.com/bs5jssxhm2-blip/netstar-payd/main";
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
 function cors(){return{"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type,x-api-key,Authorization","Access-Control-Max-Age":"86400"};}
