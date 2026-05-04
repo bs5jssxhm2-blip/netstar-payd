@@ -318,7 +318,7 @@ function gaugeHTML(score){
   var segs=RISK_BANDS.map(function(b){return'<path d="'+arc(R_ARC,-135+(b.min/100)*270,-135+(b.max/100)*270,false)+'" fill="none" stroke="'+b.color+'" stroke-width="14" stroke-linecap="butt" opacity="0.3"/>';}).join('');
   var activeArc=arc(R_ARC,-135,angle,score>50);
   return '<div style="width:200px;height:130px;position:relative;margin:0 auto">'
-    +'<svg viewBox="0 0 200 130" width="200" height="130" style="overflow:visible">'
+  +'<svg viewBox="0 0 220 130" width="200" height="130" style="overflow:visible">'  
     +'<path d="'+arc(R_ARC,-135,135,true)+'" fill="none" stroke="#1e2a3a" stroke-width="14" stroke-linecap="round"/>'
     +segs
     +'<path d="'+activeArc+'" fill="none" stroke="'+band.color+'" stroke-width="14" stroke-linecap="round"/>'
