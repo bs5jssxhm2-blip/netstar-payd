@@ -309,7 +309,7 @@ function gaugeHTML(score){
   }
   var band=getBand(score);
   var R_ARC=80;
-  var CX=100, CY=110;
+  var CX=90, CY=110;
   var angle=-135+(score/100)*270;
   function toRad(a){return a*Math.PI/180;}
   function pt(r,a){return{x:CX+r*Math.cos(toRad(a)),y:CY+r*Math.sin(toRad(a))};}
