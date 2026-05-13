@@ -3,8 +3,6 @@ const UBI_BASE = "https://ubi-api.netstaraus.com.au";
 const NETSTAR_API_KEY = "aROAW0rN00qS3Ar5iOnog";
 const COMPANY = "Netstar Demo";
 const LOCATION = "Netstar Demo";
-const DATE_FROM = "07-04-2026 00:00:01";
-const DATE_TO = "13-04-2026 23:59:59";
 const GITHUB_RAW = "https://raw.githubusercontent.com/bs5jssxhm2-blip/netstar-payd/main";
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
@@ -14,6 +12,7 @@ function err(msg,status){return json({error:msg},status||400);}
 function pad(n){return String(n).padStart(2,"0");}
 function toNetstar(s,endOfDay){if(!s)return null;var d=new Date(s);if(isNaN(d))return null;if(endOfDay)d.setUTCHours(23,59,59);return pad(d.getUTCDate())+"-"+pad(d.getUTCMonth()+1)+"-"+d.getUTCFullYear()+" "+pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds());}
 function safe(v){var n=parseFloat(v);return isNaN(n)||n<0?0:n;}
+function rollingDates(){var now=new Date();var ago=new Date(now-30*86400000);function fmt(d,eod){return pad(d.getDate())+"-"+pad(d.getMonth()+1)+"-"+d.getFullYear()+(eod?" 23:59:59":" 00:00:01");}return{start:fmt(ago,false),end:fmt(now,true)};}
 
 async function getSpeedLimit(lat,lon){
   try{
@@ -127,8 +126,9 @@ async function handleObjectStatusAll(){
 async function handleDriverScore(url){
   var imei=url.searchParams.get("imei")||null;
   var annual_km=parseInt(url.searchParams.get("annual_km")||"15000");
-  var start=toNetstar(url.searchParams.get("start_date"))||DATE_FROM;
-  var end=toNetstar(url.searchParams.get("end_date"),true)||DATE_TO;
+  var dates=rollingDates();
+  var start=toNetstar(url.searchParams.get("start_date"))||dates.start;
+  var end=toNetstar(url.searchParams.get("end_date"),true)||dates.end;
   if(!imei)throw new Error("imei parameter required");
   var os=await getObjectStatus(imei);
   var vlist=await getVehicleList();
@@ -157,8 +157,9 @@ async function handleDriverScore(url){
 
 async function handleFleetScores(url){
   var annual_km=parseInt(url.searchParams.get("annual_km")||"15000");
-  var start=toNetstar(url.searchParams.get("start_date"))||DATE_FROM;
-  var end=toNetstar(url.searchParams.get("end_date"),true)||DATE_TO;
+  var dates=rollingDates();
+  var start=toNetstar(url.searchParams.get("start_date"))||dates.start;
+  var end=toNetstar(url.searchParams.get("end_date"),true)||dates.end;
   var vlist=await getVehicleList();
   var osMap={};
   await Promise.all(vlist.map(async function(v){try{var os=await getObjectStatus(v.imei);if(os)osMap[v.imei]=os;}catch(e){}}));
@@ -203,24 +204,18 @@ async function handleDriverLookup(url){
   var imei=DRIVER_TOKENS[token]||null;
   if(!imei)throw new Error("Invalid or expired link. Please contact your insurer.");
   var annual_km=15000;
-  var now=new Date();
-  var weekAgo=new Date(now-7*86400000);
-  function pad2(n){return String(n).padStart(2,"0");}
-  function toNS(d){return pad2(d.getDate())+"-"+pad2(d.getMonth()+1)+"-"+d.getFullYear()+" 00:00:01";}
-  function toNSE(d){return pad2(d.getDate())+"-"+pad2(d.getMonth()+1)+"-"+d.getFullYear()+" 23:59:59";}
-  var start=toNS(weekAgo);
-  var end=toNSE(now);
+  var dates=rollingDates();
   var os=await getObjectStatus(imei);
   var vlist=await getVehicleList();
   var vinfo=null;
   for(var vi=0;vi<vlist.length;vi++){if(vlist[vi].imei===imei){vinfo=vlist[vi];break;}}
   var driverName=os?os.driver||"Unknown":(vinfo&&vinfo.driver_name)||"Unknown";
-  var list=await getDriverPerf(start,end);
+  var list=await getDriverPerf(dates.start,dates.end);
   if(!list.length)throw new Error("No driving data available for this period.");
   var r=list[0];
   if(driverName&&driverName!=="Unknown"){for(var i=0;i<list.length;i++){if((list[i].driver_name||"").toLowerCase()===driverName.toLowerCase()){r=list[i];break;}}}
   var scored=calcRisk(r,null);
-  return json({imei:imei,driver_name:driverName,registration:(vinfo&&vinfo.registration)||imei,make:(vinfo&&vinfo.make)||"",model:(vinfo&&vinfo.model)||"",period_from:start,period_to:end,features:scored.features,risk_score:scored.risk_score,risk_band:riskBand(scored.risk_score),predicted_loss_cost:lossCost(scored.risk_score,annual_km),total_distance_km:safe(r.total_running_km||0),running_time:r.total_running_duration||"N/A",avg_speed:safe(r.avg_speed||0),max_speed:safe(r.max_speed||0)});
+  return json({imei:imei,driver_name:driverName,registration:(vinfo&&vinfo.registration)||imei,make:(vinfo&&vinfo.make)||"",model:(vinfo&&vinfo.model)||"",period_from:dates.start,period_to:dates.end,features:scored.features,risk_score:scored.risk_score,risk_band:riskBand(scored.risk_score),predicted_loss_cost:lossCost(scored.risk_score,annual_km),total_distance_km:safe(r.total_running_km||0),running_time:r.total_running_duration||"N/A",avg_speed:safe(r.avg_speed||0),max_speed:safe(r.max_speed||0)});
 }
 
 async function handleTestOSM(url){
@@ -240,18 +235,18 @@ async function handle(request){
   if(method==="OPTIONS")return new Response(null,{status:204,headers:cors()});
   var csp={"Content-Security-Policy":"default-src * 'unsafe-inline' 'unsafe-eval' data: blob:"};
   if(url.pathname==="/"||url.pathname===""){
-    var html=await fetch(GITHUB_RAW+"/index.html").then(function(r){return r.text();});
+    var html=await fetch(GITHUB_RAW+"/index.html?v="+Date.now()).then(function(r){return r.text();});
     return new Response(html,{status:200,headers:Object.assign({"Content-Type":"text/html;charset=UTF-8"},csp)});
   }
   if(url.pathname==="/roi"){
-    var roi=await fetch(GITHUB_RAW+"/roi.html").then(function(r){return r.text();});
+    var roi=await fetch(GITHUB_RAW+"/roi.html?v="+Date.now()).then(function(r){return r.text();});
     return new Response(roi,{status:200,headers:Object.assign({"Content-Type":"text/html;charset=UTF-8"},csp)});
   }
   if(url.pathname==="/driver"){
-   var drv=await fetch(GITHUB_RAW+"/driver.html?v="+Date.now()).then(function(r){return r.text();});
+    var drv=await fetch(GITHUB_RAW+"/driver.html?v="+Date.now()).then(function(r){return r.text();});
     return new Response(drv,{status:200,headers:Object.assign({"Content-Type":"text/html;charset=UTF-8"},csp)});
   }
-  if(url.pathname==="/health")return json({status:"ok",version:"5.8"});
+  if(url.pathname==="/health")return json({status:"ok",version:"6.0"});
   try{
     var p=url.pathname.replace(/\/$/,"");
     if(p==="/vehicles")      return await handleVehicles();
