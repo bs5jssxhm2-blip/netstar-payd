@@ -12,7 +12,15 @@ function err(msg,status){return json({error:msg},status||400);}
 function pad(n){return String(n).padStart(2,"0");}
 function toNetstar(s,endOfDay){if(!s)return null;var d=new Date(s);if(isNaN(d))return null;if(endOfDay)d.setUTCHours(23,59,59);return pad(d.getUTCDate())+"-"+pad(d.getUTCMonth()+1)+"-"+d.getUTCFullYear()+" "+pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds());}
 function safe(v){var n=parseFloat(v);return isNaN(n)||n<0?0:n;}
-function rollingDates(){var now=new Date();var ago=new Date(now-10*86400000);function fmt(d,eod){return pad(d.getDate())+"-"+pad(d.getMonth()+1)+"-"+d.getFullYear()+(eod?" 23:59:59":" 00:00:01");}return{start:fmt(ago,false),end:fmt(now,true)};}
+
+function rollingDates(){
+  var now=new Date();
+  var ago=new Date();
+  ago.setUTCDate(ago.getUTCDate()-7);
+  var startDay=pad(ago.getUTCDate())+"-"+pad(ago.getUTCMonth()+1)+"-"+ago.getUTCFullYear();
+  var endDay=pad(now.getUTCDate())+"-"+pad(now.getUTCMonth()+1)+"-"+now.getUTCFullYear();
+  return{start:startDay+" 00:00:01",end:endDay+" 23:59:59"};
+}
 
 async function getSpeedLimit(lat,lon){
   try{
@@ -246,7 +254,7 @@ async function handle(request){
     var drv=await fetch(GITHUB_RAW+"/driver.html?v="+Date.now()).then(function(r){return r.text();});
     return new Response(drv,{status:200,headers:Object.assign({"Content-Type":"text/html;charset=UTF-8"},csp)});
   }
-  if(url.pathname==="/health")return json({status:"ok",version:"6.0"});
+  if(url.pathname==="/health")return json({status:"ok",version:"6.1"});
   try{
     var p=url.pathname.replace(/\/$/,"");
     if(p==="/vehicles")      return await handleVehicles();
