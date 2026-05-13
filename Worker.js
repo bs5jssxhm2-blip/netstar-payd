@@ -12,7 +12,7 @@ function err(msg,status){return json({error:msg},status||400);}
 function pad(n){return String(n).padStart(2,"0");}
 function toNetstar(s,endOfDay){if(!s)return null;var d=new Date(s);if(isNaN(d))return null;if(endOfDay)d.setUTCHours(23,59,59);return pad(d.getUTCDate())+"-"+pad(d.getUTCMonth()+1)+"-"+d.getUTCFullYear()+" "+pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds());}
 function safe(v){var n=parseFloat(v);return isNaN(n)||n<0?0:n;}
-function rollingDates(){var now=new Date();var ago=new Date(now-30*86400000);function fmt(d,eod){return pad(d.getDate())+"-"+pad(d.getMonth()+1)+"-"+d.getFullYear()+(eod?" 23:59:59":" 00:00:01");}return{start:fmt(ago,false),end:fmt(now,true)};}
+function rollingDates(){var now=new Date();var ago=new Date(now-10*86400000);function fmt(d,eod){return pad(d.getDate())+"-"+pad(d.getMonth()+1)+"-"+d.getFullYear()+(eod?" 23:59:59":" 00:00:01");}return{start:fmt(ago,false),end:fmt(now,true)};}
 
 async function getSpeedLimit(lat,lon){
   try{
